@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
 import { AvatarComponent } from '../../../shared/avatar/avatar.component';
@@ -16,6 +16,8 @@ type Friend = SuggestedUser & { following: boolean };
 })
 export class SuggestedFriendsComponent implements OnInit {
   private users = inject(UsersService);
+  layout = input<'list' | 'grid'>('list');
+showHeader = input(true);
 
   friends = signal<Friend[]>([]);
   loading = signal(true);
