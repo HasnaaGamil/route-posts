@@ -1,0 +1,271 @@
+<article class="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm">
+
+  <!-- Header -->
+  <header class="flex items-start gap-3">
+    <a [routerLink]="['/users', post().user._id]" class="shrink-0" [attr.aria-label]="'View ' + post().user.name.trim() + '\'s profile'">
+      <app-avatar [src]="post().user.photo" [name]="post().user.name" size="h-12 w-12" />
+    </a>
+
+    <div class="min-w-0 flex-1">
+      <p class="truncate font-bold leading-tight">
+        <a [routerLink]="['/users', post().user._id]" class="hover:underline">{{ post().user.name.trim() }}</a>
+        @if (post().isShare) {
+          <span class="font-normal text-slate-500">shared a post</span>
+        }
+      </p>
+      <p class="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-slate-500">
+        <span>&#64;{{ post().user.username }}</span>
+        <span aria-hidden="true">·</span>
+        <span>{{ post().createdAt | timeAgo }}</span>
+        <span aria-hidden="true">·</span>
+        <span class="inline-flex items-center gap-1 text-slate-700" [title]="'Visible to: ' + privacyLabel()">
+          @switch (privacy()) {
+            @case ('only_me') {
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 018 0v3" /></svg>
+            }
+            @case ('following') {
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5" /><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M16 4.5a3.5 3.5 0 010 7M18 14.5c2.2.6 4 2.4 4 5.5" /></svg>
+            }
+            @default {
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" /></svg>
+            }
+          }
+          {{ privacyLabel() }}
+        </span>
+      </p>
+    </div>
+
+    <!-- Three-dots menu -->
+    <div class="relative">
+      <button type="button" (click)="menuOpen.set(!menuOpen())" aria-label="Post options" aria-haspopup="menu"
+              [attr.aria-expanded]="menuOpen()"
+              class="grid h-9 w-9 place-items-center rounded-full text-slate-500 hover:bg-slate-100">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" /></svg>
+      </button>
+
+      @if (menuOpen()) {
+        <div class="fixed inset-0 z-10" (click)="menuOpen.set(false)"></div>
+        <div class="absolute right-0 z-20 mt-1 w-48 rounded-2xl border border-slate-200 bg-white p-1.5 text-sm font-medium shadow-lg" role="menu">
+          <button type="button" role="menuitem" (click)="toggleSave()"
+                  class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-700 hover:bg-slate-50">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" [attr.fill]="saved() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4z" /></svg>
+            {{ saved() ? 'Unsave post' : 'Save post' }}
+          </button>
+
+          @if (isMine()) {
+            <button type="button" role="menuitem" (click)="openEdit()"
+                    class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-700 hover:bg-slate-50">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" /></svg>
+              Edit post
+            </button>
+            <button type="button" role="menuitem" (click)="openDelete()"
+                    class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-red-600 hover:bg-red-50">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+              Delete post
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </header>
+
+  @if (notice()) {
+    <p class="mt-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700" role="status">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7" /></svg>
+      {{ notice() }}
+    </p>
+  }
+
+  @if (actionError()) {
+    <p class="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ actionError() }}</p>
+  }
+
+  <!-- Content -->
+  @if (post().body) {
+    <p dir="auto" class="mt-4 whitespace-pre-line break-words text-[15px] leading-7 text-slate-800">{{ post().body }}</p>
+  }
+
+  <!-- Saved indicator -->
+  @if (saved()) {
+    <div class="mt-4">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-600" role="status">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4z" /></svg>
+        Saved
+      </span>
+    </div>
+  }
+
+  @if (post().sharedPost; as shared) {
+    <a [routerLink]="['/posts', shared._id]" [attr.aria-label]="'Open original post by ' + shared.user.name"
+       class="mt-4 block rounded-2xl border border-slate-200 p-4 transition hover:bg-slate-50">
+      <div class="flex items-center gap-3">
+        <app-avatar [src]="shared.user.photo" [name]="shared.user.name" size="h-10 w-10" />
+        <div class="min-w-0">
+          <p class="truncate text-sm font-bold leading-tight">{{ shared.user.name.trim() }}</p>
+          <p class="truncate text-xs text-slate-500">&#64;{{ shared.user.username }} · {{ shared.createdAt | timeAgo }}</p>
+        </div>
+      </div>
+      @if (shared.body) {
+        <p dir="auto" class="mt-3 whitespace-pre-line break-words text-[15px] leading-7 text-slate-800">{{ shared.body }}</p>
+      }
+      @if (shared.image) {
+        <img [src]="shared.image" [alt]="'Post image by ' + shared.user.name" loading="lazy"
+             class="mt-3 max-h-[28rem] w-full rounded-xl object-cover" />
+      }
+      <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+        <span>{{ shared.likesCount ?? 0 }} likes</span>
+        <span>{{ shared.commentsCount ?? 0 }} comments</span>
+        <span>{{ shared.sharesCount ?? 0 }} shares</span>
+        <span class="ml-auto font-semibold text-blue-600">View original post</span>
+      </div>
+    </a>
+  } @else if (post().isShare) {
+    <div class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm text-slate-500">
+      The original post is no longer available.
+    </div>
+  } @else if (post().image) {
+    <img [src]="post().image" [alt]="'Post image by ' + post().user.name" loading="lazy"
+         class="mt-4 max-h-[32rem] w-full rounded-2xl object-cover" />
+  }
+
+  <!-- Counts row -->
+  <div class="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm text-slate-500">
+    <button type="button" (click)="openLikes()" [disabled]="likesCount() === 0"
+            class="flex items-center gap-2 rounded-lg hover:underline disabled:cursor-default disabled:no-underline"
+            [attr.aria-label]="'See who liked this post'">
+      <span class="grid h-7 w-7 place-items-center rounded-full bg-blue-600 text-white">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h4v10H3zM7 10l3.5-7a1.8 1.8 0 011.8 1.8V9h6a2 2 0 012 2.3l-1.2 7A2 2 0 0117.1 20H7" /></svg>
+      </span>
+      {{ likesCount() }} {{ likesCount() === 1 ? 'like' : 'likes' }}
+    </button>
+
+    <span class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3" /></svg>
+        {{ post().sharesCount ?? 0 }} shares
+      </span>
+      <span>{{ post().commentsCount ?? 0 }} comments</span>
+      <a [routerLink]="['/posts', post()._id]" class="font-bold text-blue-600 hover:underline">View details</a>
+    </span>
+  </div>
+
+  <hr class="my-3 border-slate-200" />
+
+  <!-- Actions (Comment opens the post's page, where its comments are listed) -->
+  <div class="grid grid-cols-3 gap-1 text-sm font-semibold text-slate-600">
+    <button type="button" (click)="toggleLike()" [attr.aria-pressed]="liked()"
+            class="flex items-center justify-center gap-2 rounded-xl py-2.5 hover:bg-slate-50"
+            [class.text-blue-600]="liked()">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" [attr.fill]="liked() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h4v10H3zM7 10l3.5-7a1.8 1.8 0 011.8 1.8V9h6a2 2 0 012 2.3l-1.2 7A2 2 0 0117.1 20H7" /></svg>
+      Like
+    </button>
+    <a [routerLink]="['/posts', post()._id]" class="flex items-center justify-center gap-2 rounded-xl py-2.5 hover:bg-slate-50" aria-label="View comments">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 11-4 17l-4 1 1-4A9 9 0 0112 3z" /></svg>
+      Comment
+    </a>
+    <button type="button" (click)="openShare()" class="flex items-center justify-center gap-2 rounded-xl py-2.5 hover:bg-slate-50">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" /></svg>
+      Share
+    </button>
+  </div>
+
+  <!-- Comments inside the card: top comment first, then all comments on demand -->
+  @if (inlineComments() && (post().commentsCount ?? 0) > 0) {
+    <div class="mt-3 border-t border-slate-100 pt-3">
+
+      @if (commentsOpen()) {
+        <div class="mb-3 flex items-center justify-between">
+          <span class="text-sm font-bold">Comments</span>
+          <button type="button" (click)="commentsOpen.set(false)"
+                  class="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline" aria-expanded="true">
+            Hide comments
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6" /></svg>
+          </button>
+        </div>
+        <app-comments-section [postId]="post()._id" [embedded]="true" />
+      } @else if (post().topComment; as c) {
+        <p class="mb-2 text-xs font-semibold text-slate-500">Top comment</p>
+        <app-comment-item [comment]="c" [compact]="true" />
+
+        @if ((post().commentsCount ?? 0) > 1) {
+          <button type="button" (click)="commentsOpen.set(true)" aria-expanded="false"
+                  class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-50 py-2 text-sm font-bold text-blue-600 hover:bg-blue-100">
+            View all {{ post().commentsCount }} comments
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          </button>
+        }
+      }
+    </div>
+  }
+</article>
+
+<!-- Edit dialog -->
+@if (dialog() === 'edit') {
+  <div class="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4" (click)="closeDialog()">
+    <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl" role="dialog" aria-modal="true" aria-label="Edit post"
+         (click)="$event.stopPropagation()">
+      <h3 class="text-xl font-bold">Edit post</h3>
+
+      <textarea [value]="editBody()" (input)="onEditInput($event)" rows="5" dir="auto" [disabled]="busy()"
+                class="mt-4 w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 p-4 text-base
+                       focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+
+      <label class="mt-3 flex items-center gap-3 text-sm font-medium text-slate-700">
+        Who can see this?
+        <select [value]="editPrivacy()" (change)="onEditPrivacy($event)" [disabled]="busy()"
+                class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+          @for (o of privacyOptions; track o.value) {
+            <option [value]="o.value" [selected]="o.value === editPrivacy()">{{ o.label }}</option>
+          }
+        </select>
+      </label>
+
+      @if (errorMsg()) {
+        <p class="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ errorMsg() }}</p>
+      }
+
+      <div class="mt-5 flex justify-end gap-2">
+        <button type="button" (click)="closeDialog()" [disabled]="busy()"
+                class="rounded-xl px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60">Cancel</button>
+        <button type="button" (click)="saveEdit()" [disabled]="busy()"
+                class="rounded-xl bg-blue-600 px-6 py-2.5 font-bold text-white hover:bg-blue-700 disabled:opacity-60">
+          {{ busy() ? 'Saving…' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Delete confirmation -->
+@if (dialog() === 'delete') {
+  <div class="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4" (click)="closeDialog()">
+    <div class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl" role="alertdialog" aria-modal="true" aria-label="Delete post"
+         (click)="$event.stopPropagation()">
+      <h3 class="text-xl font-bold">Delete this post?</h3>
+      <p class="mt-2 text-sm text-slate-600">This can't be undone.</p>
+
+      @if (errorMsg()) {
+        <p class="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ errorMsg() }}</p>
+      }
+
+      <div class="mt-5 flex justify-end gap-2">
+        <button type="button" (click)="closeDialog()" [disabled]="busy()"
+                class="rounded-xl px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60">Cancel</button>
+        <button type="button" (click)="confirmDelete()" [disabled]="busy()"
+                class="rounded-xl bg-red-600 px-6 py-2.5 font-bold text-white hover:bg-red-700 disabled:opacity-60">
+          {{ busy() ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Likes dialog -->
+@if (dialog() === 'likes') {
+  <app-likes-dialog [postId]="post()._id" (closed)="closeDialog()" />
+}
+
+<!-- Share dialog -->
+@if (dialog() === 'share') {
+  <app-share-dialog [post]="post()" (closed)="closeDialog()" (shared)="onShared($event)" />
+}

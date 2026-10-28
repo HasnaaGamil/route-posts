@@ -1,0 +1,38 @@
+<div class="mx-auto grid max-w-screen-2xl grid-cols-1 items-start gap-5 px-4 py-5 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-10 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
+
+  <!-- Left sidebar -->
+  <aside class="sticky top-[92px] hidden rounded-3xl border border-slate-200/70 bg-white p-3 shadow-sm lg:block">
+    <nav class="space-y-1 font-semibold text-slate-700" aria-label="Main">
+      <a routerLink="/feed" routerLinkActive="bg-blue-50 text-blue-600"
+         class="flex items-center gap-3 rounded-xl px-4 py-3">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="14" height="16" rx="2" /><path d="M8 9h6M8 13h6M18 8h2v10a2 2 0 01-2 2" /></svg>
+        Feed
+      </a>
+      <a routerLink="/my-posts" routerLinkActive="bg-blue-50 text-blue-600"
+         class="flex items-center gap-3 rounded-xl px-4 py-3">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3zM19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z" /></svg>
+        My Posts
+      </a>
+      <a routerLink="/community" routerLinkActive="bg-blue-50 text-blue-600"
+         class="flex items-center gap-3 rounded-xl px-4 py-3">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" /></svg>
+        Community
+      </a>
+      <a routerLink="/saved" routerLinkActive="bg-blue-50 text-blue-600"
+         class="flex items-center gap-3 rounded-xl px-4 py-3">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4V4z" /></svg>
+        Saved
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Center: the child route renders here -->
+  <section class="min-w-0">
+    <router-outlet />
+  </section>
+
+  <!-- Right sidebar -->
+  <aside class="sticky top-[92px] hidden max-h-[calc(100vh-110px)] overflow-y-auto rounded-3xl border border-slate-200/70 bg-white p-4 shadow-sm xl:block">
+    <app-suggested-friends />
+  </aside>
+</div>

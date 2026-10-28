@@ -1,0 +1,143 @@
+<div class="mx-auto max-w-screen-2xl px-4 py-5 lg:px-10">
+  <section class="rounded-3xl border border-slate-200/70 bg-white shadow-sm">
+
+    <!-- Header -->
+    <header class="border-b border-slate-200/70 px-6 pb-5 pt-6">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold leading-tight">Notifications</h1>
+          <p class="mt-1 text-slate-500">Realtime updates for likes, comments, shares, and follows.</p>
+        </div>
+
+        <button type="button" (click)="markAll()" [disabled]="!canMarkAll() || markingAll()"
+                class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 13l4 4L16 7M10 15l2 2L22 7" /></svg>
+          {{ markingAll() ? 'Marking…' : 'Mark all as read' }}
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="mt-5 flex gap-2" role="tablist" aria-label="Filter notifications">
+        <button type="button" role="tab" [attr.aria-selected]="filter() === 'all'" (click)="setFilter('all')"
+                class="rounded-full px-5 py-2 text-sm font-bold transition"
+                [class]="filter() === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'">
+          All
+        </button>
+        <button type="button" role="tab" [attr.aria-selected]="filter() === 'unread'" (click)="setFilter('unread')"
+                class="rounded-full px-5 py-2 text-sm font-bold transition"
+                [class]="filter() === 'unread' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'">
+          Unread
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5">
+
+      @if (actionError()) {
+        <p class="mb-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{{ actionError() }}</p>
+      }
+
+      @if (loading()) {
+        <ul class="space-y-3" aria-busy="true">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <li class="flex animate-pulse gap-4 rounded-3xl border border-slate-200 px-5 py-4">
+              <div class="h-12 w-12 shrink-0 rounded-full bg-slate-200"></div>
+              <div class="flex-1 space-y-2.5 pt-1">
+                <div class="h-3 w-1/3 rounded bg-slate-200"></div>
+                <div class="h-3 w-1/2 rounded bg-slate-100"></div>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else if (error()) {
+        <div class="rounded-2xl bg-red-50 p-6 text-center text-sm text-red-700" role="alert">
+          {{ error() }}
+          <button type="button" (click)="load()" class="mt-2 block w-full font-bold underline">Try again</button>
+        </div>
+      } @else if (!items().length) {
+        <div class="py-16 text-center">
+          <div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-blue-50 text-blue-600">
+            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 004 0" /></svg>
+          </div>
+          <p class="mt-4 font-bold">{{ filter() === 'unread' ? "You're all caught up" : 'No notifications yet' }}</p>
+          <p class="mt-1 text-sm text-slate-500">
+            {{ filter() === 'unread' ? 'You have no unread notifications.' : 'Likes, comments, shares and follows will show up here.' }}
+          </p>
+        </div>
+      } @else {
+        <ul class="space-y-3">
+          @for (n of items(); track n.id) {
+            <li>
+              <article tabindex="0" role="link" (click)="open(n)" (keydown.enter)="open(n)"
+                       class="flex cursor-pointer items-start gap-4 rounded-3xl border px-5 py-4 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                       [class]="n.isRead ? 'border-slate-200 bg-white' : 'border-blue-200 bg-blue-50/40'">
+
+                <app-avatar [src]="n.actor.photo" [name]="n.actor.name" size="h-12 w-12" />
+
+                <div class="min-w-0 flex-1">
+                  <p class="leading-6">
+                    <span class="font-bold">{{ n.actor.name.trim() }}</span>
+                    <span class="text-slate-700"> {{ n.text }}</span>
+                  </p>
+
+                  @if (n.preview) {
+                    <p dir="auto" class="mt-0.5 line-clamp-2 break-words text-slate-600">{{ n.preview }}</p>
+                  }
+
+                  <div class="mt-2 flex items-center gap-3 text-sm">
+                    <!-- Type icon -->
+                    @switch (n.kind) {
+                      @case ('like') {
+                        <svg class="h-5 w-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Like"><path d="M12 20s-7-4.4-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.6-9 9-9 9z" /></svg>
+                      }
+                      @case ('comment') {
+                        <svg class="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Comment"><path d="M12 3a9 9 0 11-4 17l-4 1 1-4A9 9 0 0112 3z" /></svg>
+                      }
+                      @case ('reply') {
+                        <svg class="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Reply"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 016 6v4" /></svg>
+                      }
+                      @case ('share') {
+                        <svg class="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Share"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3" /></svg>
+                      }
+                      @case ('follow') {
+                        <svg class="h-5 w-5 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Follow"><circle cx="9" cy="8" r="3.5" /><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M19 8v6M16 11h6" /></svg>
+                      }
+                      @default {
+                        <svg class="h-5 w-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 004 0" /></svg>
+                      }
+                    }
+
+                    <!-- Read state -->
+                    @if (n.isRead) {
+                      <span class="inline-flex items-center gap-1 font-medium text-emerald-600">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7" /></svg>
+                        Read
+                      </span>
+                    } @else {
+                      <button type="button" (click)="markRead(n, $event)"
+                              class="font-bold text-blue-600 hover:underline">Mark as read</button>
+                    }
+                  </div>
+                </div>
+
+                <div class="flex shrink-0 flex-col items-end gap-2">
+                  <span class="text-sm text-slate-500">{{ n.createdAt | timeAgo }}</span>
+                  @if (!n.isRead) {
+                    <span class="h-2.5 w-2.5 rounded-full bg-blue-600" aria-label="Unread"></span>
+                  }
+                </div>
+              </article>
+            </li>
+          }
+        </ul>
+
+        @if (nextPage()) {
+          <button type="button" (click)="loadMore()" [disabled]="loadingMore()"
+                  class="mt-4 w-full rounded-xl border border-slate-200 py-2.5 font-bold text-blue-600 hover:bg-blue-50 disabled:opacity-60">
+            {{ loadingMore() ? 'Loading…' : 'Load more' }}
+          </button>
+        }
+      }
+    </div>
+  </section>
+</div>

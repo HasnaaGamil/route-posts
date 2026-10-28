@@ -1,0 +1,77 @@
+<div class="mx-auto max-w-3xl px-4 py-5">
+  <section class="rounded-3xl border border-slate-200/70 bg-white p-7 shadow-sm">
+
+    <!-- Header -->
+    <header class="flex items-center gap-4">
+      <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4" /><path d="M11 12l9-9M16 7l3 3M14 9l2 2" /></svg>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold leading-tight">Change Password</h1>
+        <p class="text-slate-500">Keep your account secure by using a strong password.</p>
+      </div>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 space-y-5" novalidate>
+
+      <!-- Current password -->
+      <div>
+        <label for="currentPassword" class="mb-2 block font-bold">Current password</label>
+        <input id="currentPassword" type="password" formControlName="currentPassword"
+               autocomplete="current-password" placeholder="Enter current password"
+               [attr.aria-invalid]="invalid('currentPassword')"
+               class="w-full rounded-2xl border bg-slate-50/70 px-4 py-3.5 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+               [class]="invalid('currentPassword') ? 'border-red-400' : 'border-slate-200'" />
+       @if (form.controls.currentPassword.hasError('wrong')) {
+  <p class="mt-1.5 text-sm text-red-600" role="alert">Current password is incorrect.</p>
+} @else if (invalid('currentPassword')) {
+  <p class="mt-1.5 text-sm text-red-600">Enter your current password.</p>
+}
+      </div>
+
+      <!-- New password -->
+      <div>
+        <label for="newPassword" class="mb-2 block font-bold">New password</label>
+        <input id="newPassword" type="password" formControlName="newPassword"
+               autocomplete="new-password" placeholder="Enter new password"
+               [attr.aria-invalid]="invalid('newPassword')"
+               class="w-full rounded-2xl border bg-slate-50/70 px-4 py-3.5 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+               [class]="invalid('newPassword') ? 'border-red-400' : 'border-slate-200'" />
+        <p class="mt-1.5 text-sm" [class]="invalid('newPassword') ? 'text-red-600' : 'text-slate-500'">
+          At least 8 characters with uppercase, lowercase, number, and special character.
+        </p>
+        @if (form.hasError('sameAsCurrent') && form.controls.newPassword.dirty) {
+          <p class="mt-1 text-sm text-red-600">The new password must be different from the current one.</p>
+        }
+      </div>
+
+      <!-- Confirm password -->
+      <div>
+        <label for="confirmPassword" class="mb-2 block font-bold">Confirm new password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword"
+               autocomplete="new-password" placeholder="Re-enter new password"
+               [attr.aria-invalid]="invalid('confirmPassword') || (form.hasError('mismatch') && form.controls.confirmPassword.dirty)"
+               class="w-full rounded-2xl border bg-slate-50/70 px-4 py-3.5 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+               [class]="invalid('confirmPassword') || (form.hasError('mismatch') && form.controls.confirmPassword.dirty) ? 'border-red-400' : 'border-slate-200'" />
+        @if (form.hasError('mismatch') && form.controls.confirmPassword.dirty) {
+          <p class="mt-1.5 text-sm text-red-600">Passwords do not match.</p>
+        } @else if (invalid('confirmPassword')) {
+          <p class="mt-1.5 text-sm text-red-600">Re-enter your new password.</p>
+        }
+      </div>
+
+      <!-- Server messages -->
+      @if (error()) {
+        <p class="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="rounded-2xl bg-green-50 px-4 py-3 text-sm text-green-700" role="status">{{ success() }}</p>
+      }
+
+      <button type="submit" [disabled]="form.invalid || saving()"
+              class="w-full rounded-2xl bg-blue-600 py-3.5 font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400/70">
+        {{ saving() ? 'Updating…' : 'Update password' }}
+      </button>
+    </form>
+  </section>
+</div>

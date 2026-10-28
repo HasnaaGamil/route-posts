@@ -1,0 +1,58 @@
+<header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
+  <div class="mx-auto flex h-[72px] max-w-screen-2xl items-center justify-between gap-4 px-4 lg:px-10">
+
+    <!-- Logo -->
+    <a routerLink="/feed" class="flex items-center gap-3">
+      <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#0a2a8a] text-[9px] font-extrabold tracking-tight text-white">ROUTE</span>
+      <span class="hidden text-xl font-bold text-slate-900 sm:block">Route Posts</span>
+    </a>
+
+    <!-- Center nav (text color is set on the container so the active link can override it) -->
+    <nav class="flex items-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1 text-sm font-semibold text-slate-700">
+      <a routerLink="/feed" routerLinkActive="bg-blue-50 text-blue-600"
+         class="flex items-center gap-2 rounded-xl px-3 py-2.5 sm:px-4">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10" /></svg>
+        <span class="hidden sm:inline">Feed</span>
+      </a>
+      <a routerLink="/profile" routerLinkActive="bg-blue-50 text-blue-600"
+         class="flex items-center gap-2 rounded-xl px-3 py-2.5 sm:px-4">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>
+        <span class="hidden sm:inline">Profile</span>
+      </a>
+      <a routerLink="/notifications" routerLinkActive="bg-blue-50 text-blue-600"
+   class="relative flex items-center gap-2 rounded-xl px-3 py-2.5 sm:px-4"
+   [attr.aria-label]="'Notifications' + (notifications.unreadCount() ? ', ' + notifications.unreadCount() + ' unread' : '')">
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 11-4 17l-4 1 1-4A9 9 0 0112 3z" /></svg>
+  <span class="hidden sm:inline">Notifications</span>
+  @if (notifications.unreadCount() > 0) {
+    <span class="absolute left-6 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+      {{ notifications.unreadCount() > 9 ? '9+' : notifications.unreadCount() }}
+    </span>
+  }
+</a>
+    </nav>
+
+    <!-- User menu -->
+    <div class="relative">
+      <button type="button" (click)="menuOpen.set(!menuOpen())"
+              class="flex items-center gap-3 rounded-full border border-slate-200 bg-white py-1.5 pl-1.5 pr-4 text-sm font-medium text-slate-800"
+              aria-haspopup="menu" [attr.aria-expanded]="menuOpen()">
+        <app-avatar [src]="auth.user()?.photo" [name]="auth.user()?.name ?? ''" size="h-9 w-9" />
+        <span class="hidden max-w-[7rem] truncate sm:block">{{ auth.user()?.name }}</span>
+        <svg class="h-5 w-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+      </button>
+
+      @if (menuOpen()) {
+        <div class="fixed inset-0 z-10" (click)="menuOpen.set(false)"></div>
+        <div class="absolute right-0 z-20 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 text-sm shadow-lg" role="menu">
+          <a routerLink="/profile" (click)="menuOpen.set(false)" role="menuitem"
+             class="block rounded-xl px-3 py-2.5 font-medium text-slate-700 hover:bg-slate-50">My profile</a>
+          <a routerLink="/settings" (click)="menuOpen.set(false)" role="menuitem"
+             class="block rounded-xl px-3 py-2.5 font-medium text-slate-700 hover:bg-slate-50">Settings</a>
+          <button type="button" (click)="logout()" role="menuitem"
+                  class="block w-full rounded-xl px-3 py-2.5 text-left font-medium text-red-600 hover:bg-red-50">Log out</button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

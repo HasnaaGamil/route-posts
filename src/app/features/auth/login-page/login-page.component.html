@@ -1,0 +1,54 @@
+
+    <!-- Right: auth card -->
+    <section class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-sm">
+      <h2 class="mt-8 text-2xl font-bold">Log in to Route Posts</h2>
+      <p class="mt-1 text-sm text-slate-500">Log in and continue your social journey.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 space-y-4" novalidate>
+
+        <!-- Email -->
+        <div>
+          <label class="flex items-center gap-3 rounded-xl border border-indigo-100 bg-[#eaf0fd] px-4 py-3.5
+                        focus-within:border-[#0a2a8a] focus-within:ring-2 focus-within:ring-[#0a2a8a]/20">
+            <svg class="h-5 w-5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke-linecap="round" />
+            </svg>
+            <input type="email" formControlName="email" placeholder="Email address" autocomplete="email"
+                   class="w-full bg-transparent text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none" />
+          </label>
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <p class="mt-1 text-xs text-red-600">Email or username is required.</p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="flex items-center gap-3 rounded-xl border border-indigo-100 bg-[#eaf0fd] px-4 py-3.5
+                        focus-within:border-[#0a2a8a] focus-within:ring-2 focus-within:ring-[#0a2a8a]/20">
+            <svg class="h-5 w-5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <circle cx="8" cy="15" r="4" /><path d="M11 12l9-9m-3 3l3 3m-6-1l2 2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <input type="password" formControlName="password" placeholder="Password" autocomplete="current-password"
+                   class="w-full bg-transparent text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none" />
+          </label>
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <p class="mt-1 text-xs text-red-600">Password must be at least 8 characters.</p>
+          }
+        </div>
+
+        @if (errorMsg()) {
+          <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ errorMsg() }}</p>
+        }
+
+        <button type="submit" [disabled]="loading()"
+                class="w-full rounded-xl bg-[#0a2a8a] py-4 font-bold text-white transition
+                       hover:bg-[#08216e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+                       focus-visible:outline-[#0a2a8a] disabled:cursor-not-allowed disabled:opacity-60">
+          {{ loading() ? 'Logging in…' : 'Log In' }}
+        </button>
+
+        <div class="text-center">
+          <a routerLink="/forgot-password" class="text-sm text-[#0a2a8a] hover:underline">Forgot password?</a>
+        </div>
+      </form>
+    </section>

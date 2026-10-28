@@ -1,0 +1,51 @@
+<div class="flex flex-col gap-2">
+  <textarea #box [value]="text()" (input)="onInput($event)"
+            (keydown.control.enter)="send()" (keydown.meta.enter)="send()"
+            rows="2" dir="auto" [disabled]="busy()"
+            [placeholder]="placeholder()" [attr.aria-label]="placeholder()"
+            class="w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[15px]
+                   placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none
+                   focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"></textarea>
+
+  <!-- Selected image preview -->
+  @if (preview(); as src) {
+    <div class="relative w-fit">
+      <img [src]="src" alt="Selected image preview"
+           class="max-h-40 max-w-full rounded-xl border border-slate-200 object-cover" />
+      <button type="button" (click)="removeImage()" [disabled]="busy()" aria-label="Remove image"
+              class="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-slate-800 text-white shadow hover:bg-slate-900 disabled:opacity-60">
+        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+  }
+
+  @if (fileError() || error()) {
+    <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ fileError() || error() }}</p>
+  }
+
+  <div class="flex items-center justify-between gap-2">
+    <div>
+      @if (allowImage()) {
+        <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 focus-within:ring-2 focus-within:ring-blue-500/30"
+               [class.pointer-events-none]="busy()" [class.opacity-50]="busy()">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M21 16l-5-5-8 8" /></svg>
+          Photo
+          <input type="file" accept="image/*" class="sr-only" [disabled]="busy()" (change)="onFile($event)" />
+        </label>
+      }
+    </div>
+
+    <div class="flex gap-2">
+      @if (cancellable()) {
+        <button type="button" (click)="cancelled.emit()" [disabled]="busy()"
+                class="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-60">
+          Cancel
+        </button>
+      }
+      <button type="button" (click)="send()" [disabled]="!canSend()"
+              class="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+        {{ busy() ? 'Sending…' : submitLabel() }}
+      </button>
+    </div>
+  </div>
+</div>
